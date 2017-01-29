@@ -40,7 +40,7 @@ try:
             print "received {}".format(data)
 
             # if data in mongodb send wifi pass
-            query = Query(db, selector={"id": data}, limit=1)
+            query = Query(db, selector={"id": data})
             # cursor = db.users.find({"id": data})
             passphrase = None
             with open("/etc/hostapd/hostapd.conf", 'r') as f:
