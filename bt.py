@@ -1,15 +1,16 @@
-import os
-import glob
-import time
 import traceback
-import RPi.GPIO as GPIO
+
 from bluetooth import *
+from cloudant.client import Cloudant
+from cloudant.query import Query
 
-os.system('modprobe w1-gpio')
-os.system('modprobe w1-therm')
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)
+username = "752c0e5d-99e7-4853-9e67-4926ed90cb42-bluemix"
+password = "60b1102465ab738176458aebee6b01be8540800a53de3b6b2183666a5573cdd3"
+uri = "https://752c0e5d-99e7-4853-9e67-4926ed90cb42-bluemix:60b1102465ab738176458aebee6b01be8540800a53de3b6b2183666a5573cdd3@752c0e5d-99e7-4853-9e67-4926ed90cb42-bluemix.cloudant.com"
+client = Cloudant(username, password, account=uri)
+client.connect()
+db = client['users']
 
 
 try:
@@ -36,23 +37,24 @@ try:
         try:
             data = client_sock.recv(1024)
             if len(data) == 0: break
-            print "received [%s]" % data
+            print "received {}".format(data)
 
-            if data == 'temp':
-                data = str(read_temp()) + '!'
-            elif data == 'lightOn':
-                GPIO.output(17, False)
-                data = 'light on!'
-            elif data == 'lightOff':
-                GPIO.output(17, True)
-                data = 'light off!'
-            else:
-                data = 'WTF!'
-            client_sock.send(data)
-            print "sending [%s]" % data
+            # if data in mongodb send wifi pass
+            query = Query(db, selector={"id": data}, limit=1)
+            # cursor = db.users.find({"id": data})
+            passphrase = None
+            with open("/etc/hostapd/hostapd.conf", 'r') as f:
+                for s in f.read().replace('\r\n', '\n').split('\n'):
+                    if s.startswith('wpa_passphrase'):
+                        passphrase = s[s.find("=") + 1 :]  + '#' if len(s) > 15 else None
+            for user in query.result:
+                if passphrase is not None:
+                    client_sock.send(passphrase)
+                print "sending {}".format(passphrase)
+                break
 
         except IOError:
-            pass
+            traceback.format_exc()
 
         except KeyboardInterrupt:
 
@@ -66,4 +68,4 @@ try:
 except:
     traceback.format_exc()
 finally:
-    GPIO.cleanup()
+    print "disconnected"
