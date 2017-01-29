@@ -7,7 +7,7 @@ from cloudant.query import Query
 
 username = "752c0e5d-99e7-4853-9e67-4926ed90cb42-bluemix"
 password = "60b1102465ab738176458aebee6b01be8540800a53de3b6b2183666a5573cdd3"
-uri = "https://752c0e5d-99e7-4853-9e67-4926ed90cb42-bluemix:60b1102465ab738176458aebee6b01be8540800a53de3b6b2183666a5573cdd3@752c0e5d-99e7-4853-9e67-4926ed90cb42-bluemix.cloudant.com"
+uri = "https://752c0e5d-99e7-4853-9e67-4926ed90cb42-bluemix.cloudant.com"
 client = Cloudant(username, password, account=uri)
 client.connect()
 db = client['users']
