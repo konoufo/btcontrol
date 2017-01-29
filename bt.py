@@ -54,7 +54,7 @@ try:
                 break
 
         except IOError:
-            traceback.format_exc()
+            print traceback.format_exc()
 
         except KeyboardInterrupt:
 
@@ -66,6 +66,6 @@ try:
 
             break
 except:
-    traceback.format_exc()
+    print traceback.format_exc()
 finally:
     print "disconnected"
